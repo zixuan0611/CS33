@@ -1,0 +1,10 @@
+12.17
+
+A)The program in Figure 12.46 does not have the function Pthread_join. Instead, it directly calls the function exit after Pthread_create. As we know, Pthread_join blocks untill the targeted thread terminates. However, in the main function, we see that the program directly calls the function exit without waiting the peer thread. In other words, the program terminates the whole process while the peer thread is still running. So before the peer thread prints the string "Hello, world!", it has already being killed. Therefore, when we run the program, nothing prints.
+
+B)We can fix this bug by replacing the exit function with Pthread_join. As explained in part A, Pthread_join will block to wait the peer thread. Therefore, by calling Pthread_join, we can print out the string we want.
+
+12.25
+echo_cnt is thread-safe but it is not reentrant.
+echo_cnt protects the access to the shared variable byte_cnt with the mutex, so it manipulates shared data in a proper manner and it is thread-safe.
+echo_cnt is not reentrant due to the shared variable. This means echo_cnt does not satisfy the definition of reentrancy, which is that functions do not reference any shared data when they are called by multiple threads.
