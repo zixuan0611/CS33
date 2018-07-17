@@ -1,2 +1,2 @@
 Name: Zixuan Wang
-UID: 304546929
+This assignment investigates an old-fashioned way of breaking into systems executing x86 machine code, along with a couple of machine-level defenses against this attack.
