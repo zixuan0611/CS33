@@ -1,0 +1,129 @@
+A lab notebook for OpenMp lab:
+
+ssh classkrn@lnxsrv09.seas.ucla.edu
+
+Firstly, I download the handout to the desktop and then unzip it:
+tar -zxvf openmplab.tgz
+
+I use the following commands to compile with gprof enabled:
+make seq GPROF=1
+./seq
+
+It gave the following output:
+FUNC TIME : 0.874926
+TOTAL TIME : 2.926867
+
+Then to look at the details:
+gprof seq | less
+It gave the following output:
+Flat profile:
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls  ms/call  ms/call  name    
+ 71.03      0.61     0.61       15    40.72    42.18  func1
+ 13.39      0.73     0.12  5177344     0.00     0.00  rand2
+  3.49      0.76     0.03        1    30.04   123.33  addSeed
+  3.49      0.79     0.03                             filter
+  2.33      0.81     0.02   491520     0.00     0.00  findIndexBin
+  2.33      0.83     0.02                             sequence
+  1.16      0.84     0.01       15     0.67     0.67  func4
+  1.16      0.85     0.01        2     5.01     5.01  init
+  1.16      0.86     0.01        1    10.01    10.01  imdilateDisk
+  0.58      0.86     0.01       15     0.33     0.33  rand1
+  0.00      0.86     0.00   983042     0.00     0.00  round
+  0.00      0.86     0.00       16     0.00     0.00  dilateMatrix
+  0.00      0.86     0.00       15     0.00     0.00  func2
+  0.00      0.86     0.00       15     0.00     0.00  func3
+  0.00      0.86     0.00       15     0.00     1.34  func5
+  0.00      0.86     0.00        2     0.00     0.00  get_time
+  0.00      0.86     0.00        1     0.00     0.00  elapsed_time
+  0.00      0.86     0.00        1     0.00     0.00  fillMatrix
+
+From this file, it is clear that the func1 consumes most of the time. So we optimize this function first. I parallelize the two loops in func1 and limit the number of threads to 28.
+
+The reason I choose 28 is that I found that in the range of 25~30, the function time is relatively less than others. 
+
+Besides, if we do not specify the number of threads, that means to use the default 32, it will significantly slow down the function time.
+
+After we optimize the func1, to achieve a better speedup, I optimize other functions as well. I parallelize the loops using private, first private and reduction.
+
+Also, I specify all the threads number to be 28.
+
+Then I compile with OpenMP enabled:
+make clean
+make omp
+./omp
+
+I get the following output:
+FUNC TIME : 0.043012
+TOTAL TIME : 1.907122
+
+Therefore the speedup is 0.874926/0.043012 = 20.34x
+
+Remark: the function time will vary due to the number of people using the server.
+
+Finally, I check my optimization:
+make clean
+make check
+
+It gave the following output:
+gcc -o omp  -O3 -fopenmp filter.c main.c func.c util.c -lm
+cp omp filter
+./filter
+FUNC TIME : 0.043040
+TOTAL TIME : 1.874878
+diff --brief correct.txt output.txt
+
+There is no output under the line diff, so the output is correct.
+
+Then I check for memory leak:
+make clean
+make omp MTRACE=1
+./omp
+make check
+make checkmem
+
+The output is:
+mtrace filter mtrace.out || true
+
+Memory not freed:
+-----------------
+           Address     Size     Caller
+0x0000000000736070   0x1ce0  at 0x7f3da281f869
+0x0000000000737d60     0xc0  at 0x7f3da281f869
+0x0000000000737e30     0xe8  at 0x7f3da281f8b9
+0x0000000000737f20    0x240  at 0x7f3da2d4ff45
+0x0000000000738170    0x240  at 0x7f3da2d4ff45
+0x00000000007383c0    0x240  at 0x7f3da2d4ff45
+0x0000000000738610    0x240  at 0x7f3da2d4ff45
+0x0000000000738860    0x240  at 0x7f3da2d4ff45
+0x0000000000738ab0    0x240  at 0x7f3da2d4ff45
+0x0000000000738d00    0x240  at 0x7f3da2d4ff45
+0x0000000000738f50    0x240  at 0x7f3da2d4ff45
+0x00000000007391a0    0x240  at 0x7f3da2d4ff45
+0x00000000007393f0    0x240  at 0x7f3da2d4ff45
+0x0000000000739640    0x240  at 0x7f3da2d4ff45
+0x0000000000739890    0x240  at 0x7f3da2d4ff45
+0x0000000000739ae0    0x240  at 0x7f3da2d4ff45
+0x0000000000739d30    0x240  at 0x7f3da2d4ff45
+0x0000000000739f80    0x240  at 0x7f3da2d4ff45
+0x000000000073a1d0    0x240  at 0x7f3da2d4ff45
+0x000000000073a420    0x240  at 0x7f3da2d4ff45
+0x000000000073a670    0x240  at 0x7f3da2d4ff45
+0x000000000073a8c0    0x240  at 0x7f3da2d4ff45
+0x000000000073ab10    0x240  at 0x7f3da2d4ff45
+0x000000000073ad60    0x240  at 0x7f3da2d4ff45
+0x000000000073afb0    0x240  at 0x7f3da2d4ff45
+0x000000000073b200    0x240  at 0x7f3da2d4ff45
+0x000000000073b450    0x240  at 0x7f3da2d4ff45
+0x000000000073b6a0    0x240  at 0x7f3da2d4ff45
+0x000000000073b8f0    0x240  at 0x7f3da2d4ff45
+0x000000000073bb40    0x240  at 0x7f3da2d4ff45
+Although it shows memory leak but the TA said that we did not need to worry about it.
+
+At last, I check for the length requirement:
+expand func.c openmplab.txt |
+  awk '/\r/ || 200 < length'
+
+It outputs nothing.
