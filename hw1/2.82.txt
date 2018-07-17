@@ -1,0 +1,22 @@
+2.82
+
+A.The expression will not always yields 1.
+  An example: If x = INT_MIN, then the negation of x would also be INT_MIN. So if we try x = INT_MIN and y = 0, the left side x < y is true but the right side -x > -y is false. Thus this makes it yield 0.
+
+B. The expression will always yields 1.
+   Proof: ((x+y)<<4)+y-x == ((x+y)*2^4)+y-x == ((x+y)*16)+y-x == 16*x+16*y+y-x == 15*x+17*y == 17*y+15*x
+
+C. The expression will always yields 1.
+   Proof: ~x+~y+1 == (-x-1)+(-y-1)+1 == (-x-y)-1-1+1 == -(x+y) -1 == ~(x+y)
+
+D. The expression will always yields 1.
+   Proof: As we can see, the left side is an unsigned arithmetic operation and the right side is a signed arithmetic operation which will then be casted to unsigned. However, the internal binary representations do not change. Thus, the two values earned by the two sides of the expression will be the same after they both become unsigned.
+
+E. The expression will always yields 1.  
+   Proof: For the left side, x first right shifts by 2, drops the last two bits and then will be filled with 0 or 1 in the empty positions depending on the sign. Then x left shifts by 2, we add two 0s in the empty positions. Consequently, if x is an integer whose two least significant bits and two most significant bits are not 1, the result will remain the same. Otherwise, the left side will get a smaller number. Therefore, the expression will always yields 1.
+
+F. The expression will always yields 1.
+   Proof: For the left side, x will simply right shift by 1 and be filled with 0 or 1 in the empty position depending on the sign. As for the right side, firstly, the x will be casted to unsigned and right shift by 1 (add 0). Then it will add an expression. As we know, -1 << 31 will become 1000000...(binary). Then (ux & (-1 << 31)) will either become 1000000...(binary) if x is negative or become 0000000...(binary) if x is positive. Combined with (ux >> 1), if x is positive, then adding 0000000... to (ux >> 1) whose most significant bit is 0 will exactly equal to (x >> 1). If x is negative, then adding 1000000... to (ux >> 1) whose most significant bit is 0 will as well wxactly equal to (x >> 1) because it just fixes the sign (the most significant bit).
+
+G. The expression will always yields 1.
+   Proof: For the left side, x % 128 will get the value from 0 to 127 depending on x. As for the right side, 127 is 1111111 (binary). It will work as a mask, which will maintain the corresponding part of x. So the right side will also get the value ranging from 0 to 127. Therefore, the left side and the right side are essentially get the same value considering their operation processes.  

@@ -1,0 +1,7 @@
+2.72
+
+A. Because the sizeof operator returns a value of type size_t, which is an unsigned integer, the result of maxbytes-sizeof(val) would always be unsigned. In other words, the result would never below zero, causing the condition of maxbytes-sizeof(val) >= 0 always to be true. Therefore, the conditinal test in the code always succeeds.
+
+B. We need to rewrite the condition as following:
+   if (maxbytes > 0 && maxbytes >= sizeof(val))
+
