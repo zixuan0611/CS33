@@ -1,0 +1,19 @@
+3.64
+A.We know that the address of an element in a two dimensional array T D[R][C] is &D[i][j] = xD + L(C * i + j), where L is the size of data type T in bytes. To get the formula for the location of an elemeny in a three dimensional array, we extend the formula by breaking the three dimensinal array into two dimensinal arrays. Also, the data type "long" is 8 bytes. So we get the formula for the location of an array element A[i][j][k] in long A[R][S][T]:
+&A[i][j][k] = xA + 8((S * T) * i + T * j + k)
+
+B. R = 7; S = 5; T = 13
+Let us interpret the assembly code of store_ele:
+line 2  compute 3j
+line 3  compute 13j
+line 4  store i at j
+line 5  i << 6 (i * 2 ^ 6)
+line 6  compute i + i * 2 ^ 6
+line 7  compute i + i * 2 ^ 6 + 13j
+line 8  compute k + i + i * 2 ^ 6 + 13j
+line 9  retrieve M[xA + 8(k + i + i * 2 ^ 6 + 13j)]
+line 10 store M[xA + 8(k + i + i * 2 ^ 6 + 13j)] at dest
+line 11 store 3640 at %eax
+From the line 10  and the formula in A: &A[i][j][k] = xA + 8((S * T) * i + T * j + k), we can see that
+S * T = 2 ^ 6 + 1 and T = 13. Thus S = (2 ^ 6 + 1) / 13 = 5.
+Also, from the line 11, 3640 = 8 * (R * S * T) = 8 * (R * 5 * 13). Thus R = 3640 / (8 * 5 * 13) = 3640 / 520 = 7    
