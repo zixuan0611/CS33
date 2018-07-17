@@ -1,0 +1,8 @@
+3.68
+
+A = 9
+B = 5
+
+As we know, a char should start at 1 * n byte, a short should start at 2 * n byte, an int should start at 4 * n byte, a long should start at 8 * n byte. (n is an arbitrary integer.) From the line 4, we know that str1.y (a long) starts at 184 byte, so str1.x (int x[A][B]) should be either 180 or 184 bytes. From line 2, we know that str2.t (an int) starts at 8 byte, so str2.array (char array[B]) should be 5 ~ 8 bytes. From line 3, we know that str2.u (a long) starts at 32 byte, so str2.s (short s[A]) should be 14 ~ 20 bytes.
+Therefore, 180 <= A * B * 4 <=184; 5 <= B <= 8; 14 <= A * 2 <= 20.
+Therefore, A = 9, B = 5.

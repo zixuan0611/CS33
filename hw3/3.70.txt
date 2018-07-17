@@ -1,0 +1,27 @@
+3.70
+
+A. the offsets (in bytes) of the following fields:
+
+       e1.p      0
+       e1.y      8
+       e2.x      0
+       e2.next   8
+
+Because e1 and e2 are stored in a union, e1.p and e2.x start at 0 byte. Since long and pointer are both 8 bytes, e1.y and e2.next start at 8 byte.
+
+B. The structure requires 16 bytes in total.
+
+Because e1 and e2 are stored in a union and are 16 bytes (8 + 8), respectively, the structure requires 16 bytes in total.
+
+C. the missing expressions:
+
+   up -> e2.x = *(up -> e2.next -> e1.p) - up -> e2.next -> e1.y;
+
+Brief explanation:
+
+line 2: store rdi + 8 at rax. 
+line 3: from the parenthesis, we know this is a pointer. So this is up -> e2.next.
+line 4: we move to the next ele by the pointer.
+line 5: Analyzing the data type of the two struct, we subtract e1.y (a long) because it is rax + 8 (offset 8 in the struct e1), from e1.p (pointed by a long pointer) because it is rdx (offset 0 in the struct e1).
+line 6: we store the computed value in e2.x.
+
