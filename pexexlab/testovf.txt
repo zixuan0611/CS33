@@ -1,0 +1,40 @@
+The resulting assembly-language file with -O2:
+xorl    %eax, %eax
+ret
+
+The resulting assembly-language file with -O2 -fwrapv:
+movabsq $9223372036854775807, %rax
+addq    %rdi, %rax
+cmpq    %rdi, %rax
+setl    %al
+ret
+
+The resulting assembly-language file with -O2 -fsanitize=undefined:
+        pushq   %rbp
+        pushq   %rbx
+        movabsq $9223372036854775807, %rdx
+        movq    %rdi, %rbp
+        movq    %rdi, %rbx
+        subq    $8, %rsp
+        addq    %rdx, %rbp
+        jo      .L6
+.L2:
+        cmpq    %rbx, %rbp
+        setl    %al
+        addq    $8, %rsp
+        popq    %rbx
+        popq    %rbp
+        ret
+.L6:
+        movq    %rdi, %rsi
+        movl    $.Lubsan_data0, %edi
+        call    __ubsan_handle_add_overflow
+        jmp     .L2
+
+With all the three files displayed above, we can see that:
+
+-O2 is a relatively high level optimization. Within the first file, it is clear that the compiler does not consider the overflow case. The instructions show that it knows that the sum of the two numbers is definitely greater than either of them. Thus it renturns 0(false) because the compiler knows that n + 9223372036854775807 < n is definitely false. Therefore it uses the fastest way to achieve the result by simply using xorl instruction.
+
+With -fwrapv option, when signed arithmetic overflow occurs, the compliler will wrap around. Thus the compliler basically does not care about the existence of overflow and will do the operations anyway. The file is slightly longer than that of O2 because the compiler need to deal with the overflow case. Through the instructions, it will return 1(true) because the overflow result of addition will wrap around, causing the result to become smaller.
+
+With -O2 -fsanitize=undefined option, the compliler will output a runtime error message when it detects any undefined behavior, including the overflows. From the instructions, we can see that when the complier detects overflows, it will jump to L6 and set the overflow flag to 1. L6 will call a function to handle the overflow case and will give us an error massage at runtime. Then it will jump to L2 to perform the comparison depending on the compiler default behavior.

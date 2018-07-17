@@ -1,0 +1,47 @@
+A lab notebook for Program Execution Explorer lab
+Commands to gater instruction traces:
+
+Firstly, I update the path:
+PATH=/usr/local/cs/bin:$PATH
+
+Then I use the folloing command to examine the trace:
+gdb ~eggert/bin64/bin/emacs-25.2
+
+I use the following command to record the output in gdb.txt:
+set logging on
+
+Then I set the breakpoint to examine the Ftimes function:
+break Ftimes
+
+Then I set the disassemble-next-line on to disassemble next source line when hitting the breakpoint:
+set disassemble-next-line on
+
+Now I can run the command:
+r -Q -batch -eval '(print (* 1250284240 -1844255039))'
+
+Then I look into every instruction required to be examined:
+si
+
+I use the following command to check the state of specific registers:
+info registers $...
+
+I also use the following command to check the value in the memory pointed by a register or a specific address:
+x $... or x 0x...
+
+I use the last three commands repeatedly to generate the required trace.
+
+Commands to examine integer overflow handling:
+
+Firstly I update the path:
+PATH=/usr/local/cs/bin:$PATH; export PATH
+
+Then I create a c file to write down the given function:
+vim testovf.c
+
+Now I can make the assembly-language files using three options:
+gcc -O2 -S testovf.c
+gcc -O2 -fwrapv -S testovf.c
+gcc -O2 -fsanitize=undefined -S testovf.c
+
+Finally I open the generated files each time after making each of them
+vim testovf.s 
